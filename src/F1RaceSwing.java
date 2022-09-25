@@ -4,6 +4,9 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.io.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Random;
 public class F1RaceSwing{
     class F1RACE_PLAYER_CAR_CLASS{
         short pos_x = ((F1RACE_ROAD_1_START_X + F1RACE_ROAD_1_END_X - F1RACE_PLAYER_CAR_IMAGE_SIZE_X) / 2);
@@ -117,6 +120,7 @@ public class F1RaceSwing{
     private final short F1RACE_STATUS_END_X                            = (F1RACE_STATUS_START_X + F1RACE_STATUS_WIDTH);
     
     //global vars
+    private boolean gover = false;
     private boolean f1race_is_new_game;
     private boolean f1race_is_crashing;
     private short f1race_crashing_count_down;
@@ -139,6 +143,7 @@ public class F1RaceSwing{
     private F1RACE_PLAYER_CAR_CLASS f1race_player_car;
     private f1race_opposite_car_type_class[] f1race_opposite_car_type = new f1race_opposite_car_type_class[F1RACE_OPPOSITE_CAR_TYPE_COUNT];
     private F1RACE_OPPOSITE_CAR_CLASS[]  f1race_opposite_car = new F1RACE_OPPOSITE_CAR_CLASS[F1RACE_OPPOSITE_CAR_COUNT];
+    private BufferedImage[] numbers = new BufferedImage[10];
    
 
     private void F1RACE_RELEASE_ALL_KEY() {
@@ -150,7 +155,7 @@ public class F1RaceSwing{
             return;  
     }
     
-    private void init_car_type(){
+    private void init_assets(){
         f1race_opposite_car_type[0] = new f1race_opposite_car_type_class((short) F1RACE_OPPOSITE_CAR_0_IMAGE_SIZE_X,(short) F1RACE_OPPOSITE_CAR_0_IMAGE_SIZE_Y,(short) 3,(short) ((F1RACE_ROAD_WIDTH - F1RACE_OPPOSITE_CAR_0_IMAGE_SIZE_X) / 2), tx.TEXTURE_OPPOSITE_CAR_0);
         f1race_opposite_car_type[1] = new f1race_opposite_car_type_class((short) F1RACE_OPPOSITE_CAR_1_IMAGE_SIZE_X,(short) F1RACE_OPPOSITE_CAR_1_IMAGE_SIZE_Y,(short) 4,(short) ((F1RACE_ROAD_WIDTH - F1RACE_OPPOSITE_CAR_1_IMAGE_SIZE_X) / 2), tx.TEXTURE_OPPOSITE_CAR_1);
         f1race_opposite_car_type[2] = new f1race_opposite_car_type_class((short) F1RACE_OPPOSITE_CAR_2_IMAGE_SIZE_X,(short) F1RACE_OPPOSITE_CAR_2_IMAGE_SIZE_Y,(short) 6,(short) ((F1RACE_ROAD_WIDTH - F1RACE_OPPOSITE_CAR_2_IMAGE_SIZE_X) / 2), tx.TEXTURE_OPPOSITE_CAR_2);
@@ -164,6 +169,17 @@ public class F1RaceSwing{
         }
         
         f1race_player_car = new F1RACE_PLAYER_CAR_CLASS();
+        
+        numbers[0] = tx.TEXTURE_NUMBER_0;
+        numbers[1] = tx.TEXTURE_NUMBER_1;
+        numbers[2] = tx.TEXTURE_NUMBER_2;
+        numbers[3] = tx.TEXTURE_NUMBER_3;
+        numbers[4] = tx.TEXTURE_NUMBER_4;
+        numbers[5] = tx.TEXTURE_NUMBER_5;
+        numbers[6] = tx.TEXTURE_NUMBER_6;
+        numbers[7] = tx.TEXTURE_NUMBER_7;
+        numbers[8] = tx.TEXTURE_NUMBER_8;
+        numbers[9] = tx.TEXTURE_NUMBER_9;
     }
     
     //swing vars
@@ -171,16 +187,12 @@ public class F1RaceSwing{
     private JFrame f;
     private JPanel p;
     
-    Action up;
-    Action down;
-    Action left;
-    Action right;
     
     private MTKGameFrameWork mtkgfw;
     public F1RaceSwing(){
         try {
             tx = new TEXTURES();
-            init_car_type();
+            init_assets();
         }
         catch(IOException ioe){
             System.err.println(ioe.toString());
@@ -188,89 +200,99 @@ public class F1RaceSwing{
         f = new JFrame("JF1Race");
         p = new JPanel() {
              public void paint(Graphics g) {
-                super.paintComponent(g);
-                mtkgfw = new MTKGameFrameWork(g, WINDOW_WIDTH, WINDOW_HEIGHT, p);
+                Graphics2D g2d = (Graphics2D) g;
+                super.paintComponent(g2d);
+                mtkgfw = new MTKGameFrameWork(g2d, WINDOW_WIDTH, WINDOW_HEIGHT, p);
+                g2d.drawRect(F1RACE_DISPLAY_START_X, F1RACE_DISPLAY_START_Y, F1RACE_DISPLAY_END_X, F1RACE_DISPLAY_END_Y-4);
                 F1Race_Render_Background();
+                F1Race_Render_Status();
                 F1Race_Render_Road();
                 F1Race_Render_Separator();
+                F1Race_Render_Opposite_Car();
                 F1Race_Render_Player_Car();
+                
             }
         };
-        
-        up = new MoveUp();
-        down = new MoveDown();
-        left = new MoveLeft();
-        right = new MoveRight();
        
     }
     
-//    class RenderLoop implements Runnable{
-//        public void run(){
-//           Graphics g = p.getGraphics();
-//           //mtkgfw = new MTKGameFrameWork(g, WINDOW_WIDTH, WINDOW_HEIGHT, p);
-//            while(true){
-//                try{
-//                    Thread.sleep(100);
-//                }
-//                catch(InterruptedException iex){
-//            
-//                }
-//                p.repaint();
-//            }
-//        }
-//    }
-    
-    private class MoveUp extends AbstractAction {
-        public void actionPerformed(ActionEvent e){
-            f1race_player_car.pos_y-=5;
+    class RenderLoop extends KeyAdapter implements Runnable{
+        HashSet<Integer> pressedKeys = new HashSet<>();
+        public void run(){
+           
+            while(true){
+                try{
+                    Thread.sleep(100);
+                }
+                catch(InterruptedException iex){
+                    System.err.println(iex.toString());
+                }
+                p.repaint();
+               
+            }
+            
         }
+        
     }
     
-    private class MoveDown extends AbstractAction {
-        public void actionPerformed(ActionEvent e){
-            f1race_player_car.pos_y+=5;
+    //a keyhandler that uses Swing timers to remove animation delay
+    /*
+    * From: https://stackoverflow.com/questions/12102619/java-keylistener-is-delayed-registration
+    */
+    private class KeyHandler extends KeyAdapter {       
+        KeyHandler(){
+            Timer t = new Timer(100, (e) -> {
+                Graphics2D g2d = (Graphics2D) p.getGraphics();
+                mtkgfw = new MTKGameFrameWork(g2d, WINDOW_WIDTH, WINDOW_HEIGHT, p); 
+                F1Race_Framemove();
+                p.repaint();
+            });
+            t.start();
+        }
+        
+        public void keyPressed(KeyEvent e){
+            int keyCode = e.getKeyCode();
+            switch(keyCode){
+                case KeyEvent.VK_W:
+                    f1race_key_up_pressed = true;
+                    break;
+                case KeyEvent.VK_S:
+                    f1race_key_down_pressed = true;
+                    break;
+                case KeyEvent.VK_A:
+                    f1race_key_left_pressed = true;
+                    break;
+                case KeyEvent.VK_D:
+                    f1race_key_right_pressed = true;
+                    break;
+            }
+        }
+
+        public void keyReleased(KeyEvent e){
+            int keyCode = e.getKeyCode();
+            switch(keyCode){
+                case KeyEvent.VK_W:
+                    f1race_key_up_pressed = false;
+                    break;
+                case KeyEvent.VK_S:
+                    f1race_key_down_pressed = false;
+                    break;
+                case KeyEvent.VK_A:
+                    f1race_key_left_pressed = false;
+                    break;
+                case KeyEvent.VK_D:
+                    f1race_key_right_pressed = false;
+                    break;
+            }
         }
     }
-    
-    private class MoveLeft extends AbstractAction {
-        public void actionPerformed(ActionEvent e){
-            System.out.println(f1race_player_car.pos_x);
-            f1race_player_car.pos_x-=5;
-        }
-    }
-    
-    private class MoveRight extends AbstractAction {
-        public void actionPerformed(ActionEvent e){
-            System.out.println(f1race_player_car.pos_x);
-            f1race_player_car.pos_x+=5;
-        }
-    }
-    
     
     public void startApp(){
         f.add(p);
         f.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-        p.setSize(new Dimension(420,420));
-        
-        p.getInputMap().put(KeyStroke.getKeyStroke("W"), "up");
-        p.getActionMap().put("up", up);
-        p.getInputMap().put(KeyStroke.getKeyStroke("S"), "down");
-        p.getActionMap().put("down", down);
-        p.getInputMap().put(KeyStroke.getKeyStroke("A"), "left");
-        p.getActionMap().put("left", left);
-        p.getInputMap().put(KeyStroke.getKeyStroke("D"), "right");
-        p.getActionMap().put("right", right);
-        
+        f.addKeyListener(new KeyHandler());
         f.setVisible(true);
-//        RenderLoop rl = new RenderLoop();
-//        Thread Renderer = new Thread(rl);
-//        Renderer.start();
-        ActionListener Repaint = new ActionListener() {
-          public void actionPerformed(ActionEvent e){
-              p.repaint();
-          }  
-        };
-        new Timer(100, Repaint).start();
+
     }
     
     public void F1Race_Render_Background() {
@@ -298,7 +320,7 @@ public class F1RaceSwing{
         mtkgfw.gui_show_image(F1RACE_STATUS_START_X + 6, F1RACE_DISPLAY_START_Y + 64, tx.TEXTURE_STATUS_LEVEL);
         mtkgfw.gui_show_image(F1RACE_STATUS_START_X + 2, F1RACE_DISPLAY_START_Y + 72, tx.TEXTURE_STATUS_BOX);
 
-        mtkgfw.gui_show_image(F1RACE_STATUS_START_X + 2, F1RACE_DISPLAY_START_Y + 89, tx.TEXTURE_PLAYER_CAR_FLY);
+        mtkgfw.gui_show_image(F1RACE_STATUS_START_X + 2, F1RACE_DISPLAY_START_Y + 89, tx.TEXTURE_STATUS_FLY);
     }
     
     public void F1Race_Render_Road(){
@@ -444,5 +466,537 @@ public class F1RaceSwing{
         }
     };
     
+    public void F1Race_Render_Status(){
+        short x_pos;
+        short y_pos;
+        short value;
+        short remain;
+        int score;
+        short index;
+        Color c;
+        
+        mtkgfw.gui_fill_rectangle(
+        F1RACE_STATUS_START_X + 4,
+        F1RACE_DISPLAY_START_Y + 52,
+        F1RACE_STATUS_START_X + 29,
+        F1RACE_DISPLAY_START_Y + 58,
+        new Color(0,0,0));
+        
+        x_pos = F1RACE_STATUS_START_X + 25;
+        y_pos = F1RACE_DISPLAY_START_Y + 52;
+        score = f1race_score;
+        
+        value = (short) (score % 10);
+        remain = (short) (score / 10);
+        
+        //String scoresplit = String.valueOf(score);
+        if(score < 10)
+            mtkgfw.gui_show_image(x_pos, y_pos, numbers[score]);
+        
+        if(score >= 10 && score < 100){
+            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[(score % 10)+1] );
+            mtkgfw.gui_show_image(x_pos, y_pos, numbers[score % 1]);
+        }
+        
+        if(score >= 100 && score < 1000){
+            mtkgfw.gui_show_image(x_pos-12, y_pos, numbers[score % 1]);
+            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[score % 10]);
+            mtkgfw.gui_show_image(x_pos, y_pos, numbers[score % 100]);
+        }
+        
+        if(score >= 1000){
+            mtkgfw.gui_show_image(x_pos-18, y_pos, numbers[score % 1]);
+            mtkgfw.gui_show_image(x_pos-12, y_pos, numbers[score % 10]);
+            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[score % 100]);
+            mtkgfw.gui_show_image(x_pos, y_pos, numbers[score % 1000]);
+        }
+        
+        
+        /* render level */
+        mtkgfw.gui_fill_rectangle(
+        F1RACE_STATUS_START_X + 4,
+        F1RACE_DISPLAY_START_Y + 74,
+        F1RACE_STATUS_START_X + 29,
+        F1RACE_DISPLAY_START_Y + 80,
+        new Color(0,0,0));
+        
+
+        x_pos = F1RACE_STATUS_START_X + 25;
+        y_pos = F1RACE_DISPLAY_START_Y + 74;
+        
+        if(f1race_level < 10)
+            mtkgfw.gui_show_image(x_pos, y_pos, numbers[f1race_level]);
+        
+        if(f1race_level >= 10 && score < 100){
+            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[f1race_level  % 10]);
+            mtkgfw.gui_show_image(x_pos, y_pos, numbers[f1race_level]);
+        }
+        
+        if(f1race_level >= 100 && score < 1000){
+            mtkgfw.gui_show_image(x_pos-12, y_pos, numbers[f1race_level]);
+            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[f1race_level % 10]);
+            mtkgfw.gui_show_image(x_pos, y_pos, numbers[f1race_level % 100]);
+        }
+        
+        if(f1race_level >= 1000){
+            mtkgfw.gui_show_image(x_pos-18, y_pos, numbers[f1race_level]);
+            mtkgfw.gui_show_image(x_pos-12, y_pos, numbers[f1race_level % 10]);
+            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[f1race_level % 100]);
+            mtkgfw.gui_show_image(x_pos, y_pos, numbers[f1race_level % 1000]);
+        }
+        
+        x_pos = F1RACE_STATUS_START_X + 4;
+        y_pos = F1RACE_DISPLAY_START_Y + 102;
+        for (index = 0; index < 5; index++){
+            if (index < f1race_fly_charger_count){
+                c = new Color(255, 0, 0);
+            }
+            else{
+                c = new Color(100, 100, 100);
+            }
+            mtkgfw.gui_fill_rectangle(x_pos + index * 4, y_pos - 2 - index, x_pos + 2 + index * 4, y_pos, c);
+        }
+        
+        
+        x_pos = F1RACE_STATUS_START_X + 25;
+        y_pos = F1RACE_DISPLAY_START_Y + 96;
+        mtkgfw.gui_show_image(x_pos, y_pos, numbers[f1race_fly_charger_count]);
+    }
     
+    public void F1Race_CollisionCheck(){
+        short index;
+        short minA_x, minA_y, maxA_x, maxA_y;
+        short minB_x, minB_y, maxB_x, maxB_y;
+
+        minA_x = (short) (f1race_player_car.pos_x - 1);
+        maxA_x = (short) (minA_x + f1race_player_car.dx - 1);
+        minA_y = (short) (f1race_player_car.pos_y - 1);
+        maxA_y = (short) (minA_y + f1race_player_car.dy - 1);
+        
+        for (index = 0; index < F1RACE_OPPOSITE_CAR_COUNT; index++){
+            if (f1race_opposite_car[index].is_empty == false){
+                /* not empty, process bbox check */
+                minB_x = (short) (f1race_opposite_car[index].pos_x - 1);
+                maxB_x = (short) (minB_x + f1race_opposite_car[index].dx - 1);
+                minB_y = (short) (f1race_opposite_car[index].pos_y - 1);
+                maxB_y = (short) (minB_y + f1race_opposite_car[index].dy - 1);
+
+                /* x axis */
+                if (((minA_x <= minB_x) && (minB_x <= maxA_x)) || ((minA_x <= maxB_x) && (maxB_x <= maxA_x))){
+                /* y axis */
+                    if (((minA_y <= minB_y) && (minB_y <= maxA_y)) || ((minA_y <= maxB_y) && (maxB_y <= maxA_y))){   
+                        F1Race_Render_Player_Car_Crash();
+                        F1Race_Crashing();
+                        return;
+                    }
+                }
+
+                /* check left up corner */
+                if ((minA_x >= minB_x) && (minA_x <= maxB_x) && (minA_y >= minB_y) && (minA_y <= maxB_y)){	
+                    F1Race_Render_Player_Car_Crash();
+                    F1Race_Crashing();
+                    return;
+                }
+
+                /* check left down corner */
+                if ((minA_x >= minB_x) && (minA_x <= maxB_x) && (maxA_y >= minB_y) && (maxA_y <= maxB_y)){	
+                    F1Race_Render_Player_Car_Crash();
+                    F1Race_Crashing();
+                    return;
+                }
+
+                /* check right up corner */
+                if ((maxA_x >= minB_x) && (maxA_x <= maxB_x) && (minA_y >= minB_y) && (minA_y <= maxB_y)){	
+                    F1Race_Render_Player_Car_Crash();
+                    F1Race_Crashing();
+                    return;
+                }
+
+                /* check right down corner */
+                if ((maxA_x >= minB_x) && (maxA_x <= maxB_x) && (maxA_y >= minB_y) && (maxA_y <= maxB_y)){	
+                    //F1Race_Render_Player_Car_Crash();
+                    F1Race_Crashing();
+                    return;
+                }
+
+                /* calculate score */
+                if ((maxA_y < minB_y) && (f1race_opposite_car[index].is_add_score == false)){
+                    f1race_score++;
+                    f1race_pass++;
+                    f1race_opposite_car[index].is_add_score = true;
+                /* change level */
+                      
+                    if (f1race_pass == 10){
+                        f1race_level++; /* level 2 */
+                    }
+                    else if (f1race_pass == 20){
+                        f1race_level++; /* level 3 */
+                    }
+                    else if (f1race_pass == 30){
+                        f1race_level++; /* level 4 */
+                    }
+                    else if (f1race_pass == 40){
+                        f1race_level++; /* level 5 */
+                    }
+                    else if (f1race_pass == 50){
+                        f1race_level++; /* level 6 */
+                    }
+                    else if (f1race_pass == 60){
+                        f1race_level++; /* level 7 */
+                    }
+                    else if (f1race_pass == 70){
+                        f1race_level++; /* level 8 */
+                    }
+                    else if (f1race_pass == 100){
+                        f1race_level++; /* level 9 */
+                    }
+
+                    f1race_fly_charger_count++;
+                    if (f1race_fly_charger_count >= 6){
+                        if (f1race_fly_count < F1RACE_MAX_FLY_COUNT){
+                            f1race_fly_charger_count = 0;
+                            f1race_fly_count++;
+                        }
+                        else    /* fly count each max. */{
+                            f1race_fly_charger_count--;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    public void F1Race_New_Opposite_Car(){
+        /*----------------------------------------------------------------*/
+        /* Local Variables                                                */
+        /*----------------------------------------------------------------*/
+        short index;
+        short validIndex = 0;
+        boolean no_slot;
+        short car_type = 0;
+        byte road;
+        short car_pos_x = 0;
+        short car_shift;
+        boolean enough_space;
+        short rand_num;
+        short speed_add;
+        
+
+        /*----------------------------------------------------------------*/
+        /* Code Body                                                      */
+        /*----------------------------------------------------------------*/
+        /* random generate new car based on SHOW_RATE */
+        no_slot = true;
+        if ((mtkgfw.rand() % F1RACE_OPPOSITE_CAR_DEFAULT_APPEAR_RATE) == 0){
+            /* enter here will try to create a new opposite car */
+            for (index = 0; index < F1RACE_OPPOSITE_CAR_COUNT; index++){
+                if (f1race_opposite_car[index].is_empty != false){
+                    validIndex = index;
+                    no_slot = false;
+                    break;
+                }
+            }
+        }
+
+        /* no slot availabe */
+        if (no_slot != false){
+            return;
+        }
+
+        /* choose opposite car type */
+        road = (byte) (mtkgfw.rand() % 3);  /* 3 = road count */
+
+        /* avoid one car after another in the same road */
+        if (road == f1race_last_car_road){
+            road++;
+            road %= 3;
+        }
+
+        /* proablilty for showing different car */
+        /* 0,1      = trunk, */
+        /* 2,3,4    = red small car */
+        /* 5     = race car */
+        /* 6, 7     = green small car */
+        /* 8     = small truck */
+        /* 9        = red sport */
+        /* 10    = s.small truck */
+
+        if (f1race_level < 3){
+            rand_num = (short) (mtkgfw.rand() % 11);
+            switch (rand_num){
+                case 0:
+                case 1:
+                    car_type = 0;
+                    break;
+
+                case 2:
+                case 3:
+                case 4:
+                    car_type = 1;
+                    break;
+                case 5:
+                    car_type = 2;
+                    break;
+                case 6:
+                case 7:
+                    car_type = 3;
+                    break;
+                case 8:
+                    car_type = 4;
+                    break;
+                case 9:
+                    car_type = 5;
+                    break;
+                case 10:
+                car_type = 6;
+                    break;
+            }
+        }
+
+        /* proablilty for showing different car */
+        /* 0,1      = trunk, */
+        /* 2,3,4    = red small car */
+        /* 5     = race car */
+        /* 6, 7     = green small car */
+        /* 8     = small truck */
+        /* 9        = red sport */
+        /* 10    = s.small truck */
+
+        if (f1race_level >= 3){
+            rand_num = (short) (mtkgfw.rand() % 11);
+            switch (rand_num){
+                case 0:
+                    car_type = 0;
+                    break;
+
+                case 1:
+                case 2:
+                    car_type = 1;
+                    break;
+                case 3:
+                case 4:
+                    car_type = 2;
+                    break;
+                case 5:
+                case 6:
+                    car_type = 3;
+                    break;
+                case 7:
+                    car_type = 4;
+                    break;
+                case 8:
+                case 9:
+                    car_type = 5;
+                    break;
+                case 10:
+                    car_type = 6;
+                    break;
+            }
+        }
+        /* car_type = 6; */
+        /* make sure there is enought space for user car to change road */
+        enough_space = true;
+        for (index = 0; index < F1RACE_OPPOSITE_CAR_COUNT; index++){
+            if ((f1race_opposite_car[index].is_empty == false) &&
+                (f1race_opposite_car[index].pos_y < (F1RACE_PLAYER_CAR_IMAGE_SIZE_Y * 1.5)))
+            {
+                enough_space = false;
+            }
+        }
+
+        if (enough_space == false){
+            return;
+        }
+
+        speed_add = (short) (f1race_level - 1);
+        if (speed_add > 0){
+            speed_add = (short) (speed_add / 4);
+        }
+        /* Init opposite car */
+        f1race_opposite_car[validIndex].is_empty = false;
+        f1race_opposite_car[validIndex].is_add_score = false;
+        f1race_opposite_car[validIndex].dx = f1race_opposite_car_type[car_type].dx;
+        f1race_opposite_car[validIndex].dy = f1race_opposite_car_type[car_type].dy;
+        f1race_opposite_car[validIndex].speed = (short) (f1race_opposite_car_type[car_type].speed + speed_add);
+        f1race_opposite_car[validIndex].dx_from_road = f1race_opposite_car_type[car_type].dx_from_road;
+        f1race_opposite_car[validIndex].image = f1race_opposite_car_type[car_type].image;
+
+        car_shift = f1race_opposite_car[validIndex].dx_from_road;
+
+        switch (road){
+            case 0:
+                car_pos_x = (short) (F1RACE_ROAD_0_START_X + car_shift);
+                break;
+            case 1:
+                car_pos_x = (short) (F1RACE_ROAD_1_START_X + car_shift);
+                break;
+            case 2:
+                car_pos_x = (short) (F1RACE_ROAD_2_START_X + car_shift);
+                break;
+        }
+
+        f1race_opposite_car[validIndex].pos_x = (short) car_pos_x;
+        f1race_opposite_car[validIndex].pos_y = (short) (F1RACE_DISPLAY_START_Y - f1race_opposite_car[validIndex].dy);
+        f1race_opposite_car[validIndex].road_id = road;
+
+        f1race_last_car_road = road;
+    }
+    
+    public void F1Race_Render_Opposite_Car(){
+        short index;
+        for (index = 0; index < F1RACE_OPPOSITE_CAR_COUNT; index++){
+            if (f1race_opposite_car[index].is_empty == false){
+                mtkgfw.gui_show_image(
+                    f1race_opposite_car[index].pos_x,
+                    f1race_opposite_car[index].pos_y,
+                    f1race_opposite_car[index].image);
+            }
+        }
+    }
+    
+    public void F1Race_Crashing(){
+        //play some audio??
+        f1race_is_crashing = true;
+    }
+    
+    public void F1Race_Draw_GameOver(){       
+        mtkgfw.mmi_gfx_draw_gameover_screen(tx.TEXTURE_GAMEOVER, tx.TEXTURE_STATUS_BOX, tx.TEXTURE_GAMEOVER_CRASH, f1race_score);
+        gover = true;
+	//play some sound here.
+    }
+    
+    public void F1Race_Render_Player_Car_Crash(){
+    mtkgfw.gui_show_image(
+        f1race_player_car.pos_x,
+        f1race_player_car.pos_y - 5,tx.TEXTURE_PLAYER_CAR_CRASH);
+    }
+    
+    public void newGame(){
+        int index;
+        f1race_is_new_game = true;
+        f1race_is_crashing = false;
+        f1race_key_up_pressed = false;
+        f1race_key_down_pressed = false;
+        f1race_key_right_pressed = false;
+        f1race_key_left_pressed = false;
+        f1race_separator_0_block_start_y = F1RACE_DISPLAY_START_Y;
+        f1race_separator_1_block_start_y = F1RACE_DISPLAY_START_Y;
+        f1race_crashing_count_down = 10;
+        f1race_player_is_car_fly = false;
+        f1race_player_car.pos_x = (short) ((F1RACE_ROAD_1_START_X + F1RACE_ROAD_1_END_X - F1RACE_PLAYER_CAR_IMAGE_SIZE_X) / 2);
+        f1race_player_car.pos_y = F1RACE_DISPLAY_END_Y - F1RACE_PLAYER_CAR_IMAGE_SIZE_Y - 1;
+        f1race_is_crashing = false;
+        f1race_last_car_road = 0;
+        f1race_score = 0;
+        f1race_level = 1;
+        f1race_pass = 0;
+        f1race_fly_count = 1;
+        f1race_fly_charger_count = 0;	
+        
+        for (index = 0; index < F1RACE_OPPOSITE_CAR_COUNT; index++){
+            f1race_opposite_car[index].is_empty = true; /* clear all slot, no car */
+            f1race_opposite_car[index].is_add_score = false;
+        }
+    }
+    
+    public void F1Race_Framemove(){
+        short shift;
+        short max;
+        short index;
+
+        f1race_player_car_fly_duration++;
+        if (f1race_player_car_fly_duration == F1RACE_PLAYER_CAR_FLY_FRAME_COUNT)
+        {
+            f1race_player_is_car_fly = false;
+        }
+
+        /* Player car movement */
+        shift = F1RACE_PLAYER_CAR_SHIFT;
+        if (f1race_key_up_pressed)
+        {
+            if (f1race_player_car.pos_y - shift < F1RACE_DISPLAY_START_Y)
+            {
+                shift = (short) (f1race_player_car.pos_y - F1RACE_DISPLAY_START_Y - 1);
+            }
+
+            if (f1race_player_is_car_fly == false)
+            {
+                f1race_player_car.pos_y -= shift;
+            }
+        }
+
+        if (f1race_key_down_pressed)
+        {
+            max = (short) (f1race_player_car.pos_y + f1race_player_car.dy);
+            if (max + shift > F1RACE_DISPLAY_END_Y)
+            {
+                shift = (short) ( F1RACE_DISPLAY_END_Y - max);
+            }
+
+            if (f1race_player_is_car_fly == false)
+            {
+                f1race_player_car.pos_y += shift;
+            }
+        }
+
+        if (f1race_key_right_pressed)
+        {
+            max =  (short) (f1race_player_car.pos_x + f1race_player_car.dx);
+            if (max + shift > F1RACE_ROAD_2_END_X)
+            {
+                shift =  (short) (F1RACE_ROAD_2_END_X - max);
+            }
+
+            f1race_player_car.pos_x += shift;
+        }
+
+        if (f1race_key_left_pressed)
+        {
+            if (f1race_player_car.pos_x - shift < F1RACE_ROAD_0_START_X)
+            {
+                shift =  (short) (f1race_player_car.pos_x - F1RACE_ROAD_0_START_X - 1);
+            }
+
+            f1race_player_car.pos_x -= shift;
+        }
+
+        /* Oppoiste Car movement */
+        for (index = 0; index < F1RACE_OPPOSITE_CAR_COUNT; index++)
+        {
+            if (f1race_opposite_car[index].is_empty == false)
+            {
+                /* move one step foward */
+                f1race_opposite_car[index].pos_y += f1race_opposite_car[index].speed;
+
+                /* Test if this car within valid display region */
+                if (f1race_opposite_car[index].pos_y > (F1RACE_DISPLAY_END_Y + f1race_opposite_car[index].dy))
+                {
+                    /* out of display region, free the slot */
+                    f1race_opposite_car[index].is_empty = true;
+                }
+
+            }
+        }
+
+        /* Player car fly */
+        if (f1race_player_is_car_fly != false)
+        {
+            /* car fly movement */
+            shift = F1RACE_PLAYER_CAR_FLY_SHIFT;
+            if (f1race_player_car.pos_y - shift < F1RACE_DISPLAY_START_Y)
+            {
+                shift =  (short) (f1race_player_car.pos_y - F1RACE_DISPLAY_START_Y - 1);
+            }
+
+            f1race_player_car.pos_y -= shift;
+        }
+        else
+        {
+            /* Car not flying , process collision Test */
+            F1Race_CollisionCheck();
+        }
+
+        F1Race_New_Opposite_Car();
+
+    }
 }
