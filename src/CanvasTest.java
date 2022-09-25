@@ -14,7 +14,7 @@ public class CanvasTest{
     JPanel p;
     int x = 0;
     int y = 0;
-    Graphics2D g;
+    
     Action up;
     Action down;
     Action left;
@@ -38,7 +38,7 @@ public class CanvasTest{
     
     private class MoveUp extends AbstractAction {
         public void actionPerformed(ActionEvent e){
-            g = (Graphics2D) p.getGraphics();
+            Graphics2D g = (Graphics2D) p.getGraphics();
             g.drawRect(x, y-=2, 5 ,5);
         }
     }

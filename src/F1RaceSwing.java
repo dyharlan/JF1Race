@@ -46,8 +46,8 @@ public class F1RaceSwing{
     }
     //constant variables
     
-    private final short WINDOW_WIDTH  = 256;
-    private final short WINDOW_HEIGHT = 256;
+    private final short WINDOW_WIDTH  = 140;
+    private final short WINDOW_HEIGHT = 160;
     //private final short TEXTURE_WIDTH  = 128;
    // private final short TEXTURE_HEIGHT = 128;
 
@@ -204,21 +204,21 @@ public class F1RaceSwing{
        
     }
     
-    class RenderLoop implements Runnable{
-        public void run(){
-           Graphics g = p.getGraphics();
-           //mtkgfw = new MTKGameFrameWork(g, WINDOW_WIDTH, WINDOW_HEIGHT, p);
-            while(true){
-                try{
-                    Thread.sleep(100);
-                }
-                catch(InterruptedException iex){
-            
-                }
-                p.repaint();
-            }
-        }
-    }
+//    class RenderLoop implements Runnable{
+//        public void run(){
+//           Graphics g = p.getGraphics();
+//           //mtkgfw = new MTKGameFrameWork(g, WINDOW_WIDTH, WINDOW_HEIGHT, p);
+//            while(true){
+//                try{
+//                    Thread.sleep(100);
+//                }
+//                catch(InterruptedException iex){
+//            
+//                }
+//                p.repaint();
+//            }
+//        }
+//    }
     
     private class MoveUp extends AbstractAction {
         public void actionPerformed(ActionEvent e){
@@ -262,9 +262,15 @@ public class F1RaceSwing{
         p.getActionMap().put("right", right);
         
         f.setVisible(true);
-        RenderLoop rl = new RenderLoop();
-        Thread Renderer = new Thread(rl);
-        Renderer.start();
+//        RenderLoop rl = new RenderLoop();
+//        Thread Renderer = new Thread(rl);
+//        Renderer.start();
+        ActionListener Repaint = new ActionListener() {
+          public void actionPerformed(ActionEvent e){
+              p.repaint();
+          }  
+        };
+        new Timer(100, Repaint).start();
     }
     
     public void F1Race_Render_Background() {
