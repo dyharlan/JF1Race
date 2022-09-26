@@ -186,7 +186,7 @@ public class F1RaceSwing{
     
     //swing vars
     
-    private ASSETS tx;
+    private TEXTURES tx;
     private JFrame f;
     private JPanel p;
     private Graphics2D g2d;
@@ -196,7 +196,7 @@ public class F1RaceSwing{
     private MTKGameFrameWork mtkgfw;
     public F1RaceSwing(){
         try {
-            tx = new ASSETS();
+            tx = new TEXTURES();
             init_assets();
             mid = MidiSystem.getSequencer();
             mid.open();
@@ -283,7 +283,7 @@ public class F1RaceSwing{
                 f1race_opposite_car[index].is_add_score = false;
             }
             try{
-                mid.setSequence(new ASSETS().F1RACE_THEME);
+                mid.setSequence(new SOUND().F1RACE_THEME);
             }
             catch(IOException | InvalidMidiDataException ex){
                 System.err.println(ex.toString());
@@ -356,6 +356,7 @@ public class F1RaceSwing{
             }
         });
         f.setLocationRelativeTo(null);
+        f.setIconImage(tx.GAME_ICON);
         f.setResizable(false);
         f.setVisible(true);
         
@@ -934,7 +935,7 @@ public class F1RaceSwing{
         //play sound
         mid.stop();
         try{
-                mid.setSequence(new ASSETS().CAR_CRASH);
+                mid.setSequence(new SOUND().CAR_CRASH);
         }
         catch(IOException | InvalidMidiDataException ex){
                 System.err.println(ex.toString());
@@ -988,7 +989,7 @@ public class F1RaceSwing{
     
         mid.stop();
         try{
-                mid.setSequence(new ASSETS().GAMEOVER);
+                mid.setSequence(new SOUND().GAMEOVER);
         }
         catch(IOException | InvalidMidiDataException ex){
                 System.err.println(ex.toString());
@@ -1036,14 +1037,14 @@ public class F1RaceSwing{
         mid.stop();
         mid.close();
         try{
-                mid.setSequence(new ASSETS().F1RACE_THEME);
+                mid.setSequence(new SOUND().F1RACE_THEME);
                 mid.open();
                 Thread.sleep(250);
         }
         catch(IOException | InvalidMidiDataException | MidiUnavailableException | InterruptedException ex){
                 System.err.println(ex.toString());
         }
-        mid.setLoopCount(0);
+        mid.setLoopCount(mid.LOOP_CONTINUOUSLY);
         
         mid.start();
         

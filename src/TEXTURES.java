@@ -1,7 +1,7 @@
 import javax.imageio.*;
 import java.io.*;
 import java.awt.image.*;
-public class ASSETS{
+public class TEXTURES{
     public final BufferedImage TEXTURE_NUMBER_0;
     public final BufferedImage TEXTURE_NUMBER_1;
     public final BufferedImage TEXTURE_NUMBER_2;
@@ -33,11 +33,10 @@ public class ASSETS{
     public final BufferedImage TEXTURE_GAMEOVER;
     public final BufferedImage TEXTURE_GAMEOVER_CRASH;
     public final BufferedImage TEXTURE_GAMEOVER_FIELD;
-    public final InputStream F1RACE_THEME;
-    public final InputStream GAMEOVER;
-    public final InputStream CAR_CRASH;
+    public final BufferedImage GAME_ICON;
+    
 
-    public ASSETS() throws IOException{
+    public TEXTURES() throws IOException{
              TEXTURE_NUMBER_0 = ImageIO.read(new File("assets/GAME_F1RACE_NUMBER_0.bmp"));
              TEXTURE_NUMBER_1 = ImageIO.read(new File("assets/GAME_F1RACE_NUMBER_1.bmp"));
              TEXTURE_NUMBER_2 = ImageIO.read(new File("assets/GAME_F1RACE_NUMBER_2.bmp"));
@@ -69,8 +68,6 @@ public class ASSETS{
              TEXTURE_GAMEOVER = ImageIO.read(new File("assets/GAME_F1RACE_GAMEOVER.bmp"));
              TEXTURE_GAMEOVER_CRASH = ImageIO.read(new File("assets/GAME_F1RACE_GAMEOVER_CRASH.bmp"));
              TEXTURE_GAMEOVER_FIELD = ImageIO.read(new File("assets/GAME_F1RACE_GAMEOVER_FIELD.bmp"));
-             F1RACE_THEME = new BufferedInputStream(new FileInputStream(new File("assets/F1RACE_THEME.mid")));
-             GAMEOVER = new BufferedInputStream(new FileInputStream(new File("assets/GAME_OVER.mid")));
-             CAR_CRASH = new BufferedInputStream(new FileInputStream(new File("assets/CAR_CRASH.MID")));
+             GAME_ICON = ImageIO.read(new File("assets/GAME_F1RACE_ICON.bmp"));
         }
 }
