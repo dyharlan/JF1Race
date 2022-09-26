@@ -4,7 +4,7 @@
  */
 
 /**
- * TODO, implement all functions, fix rendering, and integrate game logic
+ * TODO: Fix rendering bugs
  * @author dyhar
  */
 import java.util.Random;
@@ -12,13 +12,13 @@ import java.awt.*;
 import java.awt.image.*;
 public class MTKGameFrameWork {
     
-    private Graphics g;
+    private Graphics2D g;
     private int FrameWidth;
     private int FrameHeight;
     private ImageObserver observer;
     
     public MTKGameFrameWork(Graphics gfx, int FrameWidth, int FrameHeight, ImageObserver observer){
-        this.g = gfx;
+        this.g = (Graphics2D) gfx;
         this.FrameWidth = FrameWidth;
         this.FrameHeight = FrameHeight;
         this.observer = observer;
@@ -107,7 +107,7 @@ public class MTKGameFrameWork {
         int str_height = 0;
         int spacing = 0;
         
-        gui_fill_rectangle(0, 0, FrameWidth,FrameHeight, new Color(255,255,255));
+        gui_fill_rectangle(0, 0, FrameWidth,FrameHeight, new Color(234, 243, 255));
         
         text_image_height = getHeight(text_img_id);
         box_image_height = getHeight(box_img_id);
@@ -128,6 +128,9 @@ public class MTKGameFrameWork {
     
         g.setColor(new Color(0,0,0));
         g.setFont(new Font("Arial", Font.PLAIN, 16));
-        g.drawString(String.valueOf(score),(int) ((FrameWidth - box_image_width)), (int) (box_image_offset_y));
+        
+        g.drawString(String.valueOf(score),(int) ((FrameWidth - box_image_width)), (int) (FrameWidth - box_image_offset_y)/2);
     }
+    
+    
 }

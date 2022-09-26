@@ -45,9 +45,13 @@ public class F1RaceSwing{
         }
     }
     //constant variables
-    
-    private final short WINDOW_WIDTH  = 145;
-    private final short WINDOW_HEIGHT = 165;
+    //x1 window
+    //private final short WINDOW_WIDTH  = 145;
+    //private final short WINDOW_HEIGHT = 160;
+    //x2 window
+    private final short WINDOW_WIDTH  = (short) (145*(1.896551724));
+    private final short WINDOW_HEIGHT = (short) (160*(1.8125));
+
     //private final short TEXTURE_WIDTH  = 128;
    // private final short TEXTURE_HEIGHT = 128;
 
@@ -86,7 +90,7 @@ public class F1RaceSwing{
     private final short F1RACE_PLAYER_CAR_SHIFT                        = 5;
     private final short F1RACE_PLAYER_CAR_FLY_SHIFT                    = 2;
     private final short F1RACE_DISPLAY_START_X                         = 3;
-    private final short F1RACE_DISPLAY_START_Y                         = 3;
+    private final short F1RACE_DISPLAY_START_Y                         = 0;
     private final short F1RACE_DISPLAY_END_X                           = 124;
     private final short F1RACE_DISPLAY_END_Y                           = 124;
     private final short F1RACE_ROAD_WIDTH                              = 23;
@@ -183,6 +187,7 @@ public class F1RaceSwing{
     private TEXTURES tx;
     private JFrame f;
     private JPanel p;
+    Graphics2D g2d;
     Timer t;
     
     private MTKGameFrameWork mtkgfw;
@@ -197,16 +202,25 @@ public class F1RaceSwing{
         f = new JFrame("JF1Race");
         p = new JPanel() {
              public void paint(Graphics g) {
-                Graphics2D g2d = (Graphics2D) g;
+                g2d = (Graphics2D) g;
                 super.paintComponent(g2d);
+                g2d.scale(2.0, 2.0);
                 mtkgfw = new MTKGameFrameWork(g2d, WINDOW_WIDTH, WINDOW_HEIGHT, p);
-                g2d.drawRect(F1RACE_DISPLAY_START_X, F1RACE_DISPLAY_START_Y, F1RACE_DISPLAY_END_X, F1RACE_DISPLAY_END_Y-4);
-                
-                
-                
+                g2d.setColor(new Color(0,0,0));
+                g2d.drawRect(F1RACE_DISPLAY_START_X, F1RACE_DISPLAY_START_Y+3, F1RACE_DISPLAY_END_X, F1RACE_DISPLAY_END_Y-4);
                 if (f1race_is_crashing == false){
+                    
                     F1Race_Framemove();
-                    F1Race_Render();
+                   
+                    F1Race_Render_Background();
+                    F1Race_Render_Status();
+                    F1Race_Render_Road();
+                    F1Race_Render_Separator();
+                     
+                    F1Race_Render_Opposite_Car();
+                    
+                    F1Race_Render_Player_Car();
+                    
                 }
                 else{
                     f1race_crashing_count_down--;
@@ -215,13 +229,12 @@ public class F1RaceSwing{
                     if (f1race_crashing_count_down <= 0){
                         f1race_is_crashing = false;
                         f1race_is_new_game = true;
+                        
                         F1Race_Draw_GameOver();
                         t.stop();
                     }
                 }
-                
-                
-                
+ 
             }
         };
        
@@ -264,13 +277,12 @@ public class F1RaceSwing{
                         f1race_fly_count--;
                         f1race_fly_count = f1race_fly_count;
                     }
-                    if (gover == true){
-                        gover = false;
-                        newGame();
-                        t.start();
-                    }
-                    
-                    break;
+                   if (gover == true){
+                       gover = false;
+                       newGame();
+                       t.start();
+                   }
+                   break;
             }
         }
 
@@ -298,9 +310,8 @@ public class F1RaceSwing{
         f.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         GameLogic gl = new GameLogic();
         f.addKeyListener(gl);
+        f.setResizable(false);
         f.setVisible(true);
-//        Thread t1 = new Thread(new RenderLoop());
-//        t1.start();
         
 
     }
@@ -902,8 +913,45 @@ public class F1RaceSwing{
         f1race_is_crashing = true;
     }
     
-    public void F1Race_Draw_GameOver(){       
-        mtkgfw.mmi_gfx_draw_gameover_screen(tx.TEXTURE_GAMEOVER, tx.TEXTURE_STATUS_BOX, tx.TEXTURE_GAMEOVER_CRASH, f1race_score);
+    public void F1Race_Draw_GameOver(){
+        int text_image_width = 0;
+        int text_image_height = 0;
+        int box_image_width = 0;
+        int box_image_height = 0;
+        int pic_image_width = 0;
+        int pic_image_height = 0;
+        int text_image_offset_y = 0;
+        int box_image_offset_y = 0;
+        int pic_image_offset_y = 0;
+        int score_str_offset_y = 0;
+        int score_str_offset_x = 0;
+        int str_width = 0;
+        int str_height = 0;
+        int spacing = 0;
+        g2d = (Graphics2D) p.getGraphics();
+        
+        mtkgfw.gui_fill_rectangle(0, 0, WINDOW_WIDTH,WINDOW_HEIGHT, new Color(234, 243, 255));
+        
+        text_image_height = mtkgfw.getHeight(tx.TEXTURE_GAMEOVER);
+        box_image_height = mtkgfw.getHeight(tx.TEXTURE_GAMEOVER_FIELD);
+        pic_image_height = mtkgfw.getHeight(tx.TEXTURE_GAMEOVER_CRASH);
+        text_image_width = mtkgfw.getWidth(tx.TEXTURE_GAMEOVER);
+        box_image_width = mtkgfw.getWidth(tx.TEXTURE_GAMEOVER_FIELD);
+        pic_image_width = mtkgfw.getWidth(tx.TEXTURE_GAMEOVER_CRASH);
+        
+        spacing = (128 - (text_image_height + box_image_height + pic_image_height)) >> 2;
+        
+        text_image_offset_y = spacing;
+        box_image_offset_y = text_image_offset_y + text_image_height + spacing;
+        pic_image_offset_y = box_image_offset_y + box_image_height + spacing;
+        
+        
+        mtkgfw.gui_show_image((128 - text_image_width) / 2, text_image_offset_y, tx.TEXTURE_GAMEOVER);
+        mtkgfw.gui_show_image((128 - box_image_width) / 2, box_image_offset_y, tx.TEXTURE_GAMEOVER_FIELD);
+        mtkgfw.gui_show_image((128 - pic_image_width) / 2, pic_image_offset_y, tx.TEXTURE_GAMEOVER_CRASH);
+    
+        g2d.setColor(new Color(0,0,0));
+        //mtkgfw.mmi_gfx_draw_gameover_screen(tx.TEXTURE_GAMEOVER, tx.TEXTURE_GAMEOVER_FIELD, tx.TEXTURE_GAMEOVER_CRASH, f1race_score);
         gover = true;
 	//play some sound here.
     }
@@ -1043,12 +1091,5 @@ public class F1RaceSwing{
 
     }
     
-    public void F1Race_Render(){
-        F1Race_Render_Background();
-        F1Race_Render_Status();
-        F1Race_Render_Road();
-        F1Race_Render_Separator();
-        F1Race_Render_Opposite_Car();
-        F1Race_Render_Player_Car();
-    }
+    
 }
