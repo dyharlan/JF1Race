@@ -1,7 +1,7 @@
 import javax.imageio.*;
 import java.io.*;
 import java.awt.image.*;
-public class TEXTURES{
+public class ASSETS{
     public final BufferedImage TEXTURE_NUMBER_0;
     public final BufferedImage TEXTURE_NUMBER_1;
     public final BufferedImage TEXTURE_NUMBER_2;
@@ -33,8 +33,11 @@ public class TEXTURES{
     public final BufferedImage TEXTURE_GAMEOVER;
     public final BufferedImage TEXTURE_GAMEOVER_CRASH;
     public final BufferedImage TEXTURE_GAMEOVER_FIELD;
-    
-    public TEXTURES() throws IOException{
+    public final InputStream F1RACE_THEME;
+    public final InputStream GAMEOVER;
+    public final InputStream CAR_CRASH;
+
+    public ASSETS() throws IOException{
              TEXTURE_NUMBER_0 = ImageIO.read(new File("assets/GAME_F1RACE_NUMBER_0.bmp"));
              TEXTURE_NUMBER_1 = ImageIO.read(new File("assets/GAME_F1RACE_NUMBER_1.bmp"));
              TEXTURE_NUMBER_2 = ImageIO.read(new File("assets/GAME_F1RACE_NUMBER_2.bmp"));
@@ -45,27 +48,29 @@ public class TEXTURES{
              TEXTURE_NUMBER_7 = ImageIO.read(new File("assets/GAME_F1RACE_NUMBER_7.bmp"));
              TEXTURE_NUMBER_8 = ImageIO.read(new File("assets/GAME_F1RACE_NUMBER_8.bmp"));
              TEXTURE_NUMBER_9 = ImageIO.read(new File("assets/GAME_F1RACE_NUMBER_9.bmp"));
-             TEXTURE_PLAYER_CAR = ImageIO.read(new File("assets/GAME_F1RACE_PLAYER_CAR.bmp"));
-             TEXTURE_PLAYER_CAR_FLY = ImageIO.read(new File("assets/GAME_F1RACE_PLAYER_CAR_FLY.bmp"));
-             TEXTURE_PLAYER_CAR_FLY_UP = ImageIO.read(new File("assets/GAME_F1RACE_PLAYER_CAR_FLY_UP.bmp"));
-             TEXTURE_PLAYER_CAR_FLY_DOWN = ImageIO.read(new File("assets/GAME_F1RACE_PLAYER_CAR_FLY_DOWN.bmp"));
-             TEXTURE_PLAYER_CAR_HEAD_LIGHT = ImageIO.read(new File("assets/GAME_F1RACE_PLAYER_CAR_HEAD_LIGHT.bmp"));
-             TEXTURE_PLAYER_CAR_CRASH = ImageIO.read(new File("assets/GAME_F1RACE_PLAYER_CAR_CRASH.bmp"));
+             TEXTURE_PLAYER_CAR = ImageIO.read(new File("assets/GAME_F1RACE_PLAYER_CAR.png"));
+             TEXTURE_PLAYER_CAR_FLY = ImageIO.read(new File("assets/GAME_F1RACE_PLAYER_CAR_FLY.png"));
+             TEXTURE_PLAYER_CAR_FLY_UP = ImageIO.read(new File("assets/GAME_F1RACE_PLAYER_CAR_FLY_UP.png"));
+             TEXTURE_PLAYER_CAR_FLY_DOWN = ImageIO.read(new File("assets/GAME_F1RACE_PLAYER_CAR_FLY_DOWN.png"));
+             TEXTURE_PLAYER_CAR_HEAD_LIGHT = ImageIO.read(new File("assets/GAME_F1RACE_PLAYER_CAR_HEAD_LIGHT.png"));
+             TEXTURE_PLAYER_CAR_CRASH = ImageIO.read(new File("assets/GAME_F1RACE_PLAYER_CAR_CRASH.png"));
              TEXTURE_LOGO = ImageIO.read(new File("assets/GAME_F1RACE_LOGO.bmp"));
              TEXTURE_STATUS_SCORE = ImageIO.read(new File("assets/GAME_F1RACE_STATUS_SCORE.bmp"));
              TEXTURE_STATUS_BOX = ImageIO.read(new File("assets/GAME_F1RACE_STATUS_BOX.bmp"));
              TEXTURE_STATUS_LEVEL = ImageIO.read(new File("assets/GAME_F1RACE_STATUS_LEVEL.bmp"));
              TEXTURE_STATUS_FLY = ImageIO.read(new File("assets/GAME_F1RACE_STATUS_FLY.bmp"));
-             TEXTURE_OPPOSITE_CAR_0 = ImageIO.read(new File("assets/GAME_F1RACE_OPPOSITE_CAR_0.bmp"));
-             TEXTURE_OPPOSITE_CAR_1 = ImageIO.read(new File("assets/GAME_F1RACE_OPPOSITE_CAR_1.bmp"));
-             TEXTURE_OPPOSITE_CAR_2 = ImageIO.read(new File("assets/GAME_F1RACE_OPPOSITE_CAR_2.bmp"));
-             TEXTURE_OPPOSITE_CAR_3 = ImageIO.read(new File("assets/GAME_F1RACE_OPPOSITE_CAR_3.bmp"));
-             TEXTURE_OPPOSITE_CAR_4 = ImageIO.read(new File("assets/GAME_F1RACE_OPPOSITE_CAR_4.bmp"));
-             TEXTURE_OPPOSITE_CAR_5 = ImageIO.read(new File("assets/GAME_F1RACE_OPPOSITE_CAR_5.bmp"));
-             TEXTURE_OPPOSITE_CAR_6 = ImageIO.read(new File("assets/GAME_F1RACE_OPPOSITE_CAR_6.bmp"));
+             TEXTURE_OPPOSITE_CAR_0 = ImageIO.read(new File("assets/GAME_F1RACE_OPPOSITE_CAR_0.png"));
+             TEXTURE_OPPOSITE_CAR_1 = ImageIO.read(new File("assets/GAME_F1RACE_OPPOSITE_CAR_1.png"));
+             TEXTURE_OPPOSITE_CAR_2 = ImageIO.read(new File("assets/GAME_F1RACE_OPPOSITE_CAR_2.png"));
+             TEXTURE_OPPOSITE_CAR_3 = ImageIO.read(new File("assets/GAME_F1RACE_OPPOSITE_CAR_3.png"));
+             TEXTURE_OPPOSITE_CAR_4 = ImageIO.read(new File("assets/GAME_F1RACE_OPPOSITE_CAR_4.png"));
+             TEXTURE_OPPOSITE_CAR_5 = ImageIO.read(new File("assets/GAME_F1RACE_OPPOSITE_CAR_5.png"));
+             TEXTURE_OPPOSITE_CAR_6 = ImageIO.read(new File("assets/GAME_F1RACE_OPPOSITE_CAR_6.png"));
              TEXTURE_GAMEOVER = ImageIO.read(new File("assets/GAME_F1RACE_GAMEOVER.bmp"));
              TEXTURE_GAMEOVER_CRASH = ImageIO.read(new File("assets/GAME_F1RACE_GAMEOVER_CRASH.bmp"));
              TEXTURE_GAMEOVER_FIELD = ImageIO.read(new File("assets/GAME_F1RACE_GAMEOVER_FIELD.bmp"));
-        
-    }
+             F1RACE_THEME = new BufferedInputStream(new FileInputStream(new File("assets/F1RACE_THEME.mid")));
+             GAMEOVER = new BufferedInputStream(new FileInputStream(new File("assets/GAME_OVER.mid")));
+             CAR_CRASH = new BufferedInputStream(new FileInputStream(new File("assets/CAR_CRASH.MID")));
+        }
 }

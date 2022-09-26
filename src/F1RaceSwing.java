@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.io.*;
+import javax.sound.midi.*;
 public class F1RaceSwing{
     class F1RACE_PLAYER_CAR_CLASS{
         short pos_x = ((F1RACE_ROAD_1_START_X + F1RACE_ROAD_1_END_X - F1RACE_PLAYER_CAR_IMAGE_SIZE_X) / 2);
@@ -131,7 +132,7 @@ public class F1RaceSwing{
     private boolean f1race_player_is_car_fly;
     private short f1race_player_car_fly_duration;
     private short f1race_score = 99;
-    private short f1race_level = 8;
+    private short f1race_level;
     private short f1race_pass;
     private short f1race_fly_count;
     private short f1race_fly_charger_count;
@@ -184,21 +185,27 @@ public class F1RaceSwing{
     }
     
     //swing vars
-    private TEXTURES tx;
+    
+    private ASSETS tx;
     private JFrame f;
     private JPanel p;
-    Graphics2D g2d;
-    Timer t;
+    private Graphics2D g2d;
+    private Timer t;
+    private Sequencer mid;
     
     private MTKGameFrameWork mtkgfw;
     public F1RaceSwing(){
         try {
-            tx = new TEXTURES();
+            tx = new ASSETS();
             init_assets();
+            mid = MidiSystem.getSequencer();
+            mid.open();
+            Thread.sleep(250);
         }
-        catch(IOException ioe){
-            System.err.println(ioe.toString());
+        catch(IOException | MidiUnavailableException | InterruptedException ex){
+                System.err.println(ex.toString());
         }
+        
         f = new JFrame("JF1Race");
         p = new JPanel() {
              public void paint(Graphics g) {
@@ -220,7 +227,7 @@ public class F1RaceSwing{
                     F1Race_Render_Opposite_Car();
                     
                     F1Race_Render_Player_Car();
-                    
+                   
                 }
                 else{
                     f1race_crashing_count_down--;
@@ -229,7 +236,6 @@ public class F1RaceSwing{
                     if (f1race_crashing_count_down <= 0){
                         f1race_is_crashing = false;
                         f1race_is_new_game = true;
-                        
                         F1Race_Draw_GameOver();
                         t.stop();
                     }
@@ -251,8 +257,42 @@ public class F1RaceSwing{
             t = new Timer(100, (e) -> {
                  p.repaint();  
             });
-            newGame();
-            t.start();   
+            int index;
+            f1race_is_new_game = true;
+            f1race_is_crashing = false;
+            f1race_key_up_pressed = false;
+            f1race_key_down_pressed = false;
+            f1race_key_right_pressed = false;
+            f1race_key_left_pressed = false;
+            f1race_separator_0_block_start_y = F1RACE_DISPLAY_START_Y;
+            f1race_separator_1_block_start_y = F1RACE_DISPLAY_START_Y;
+            f1race_crashing_count_down = 10;
+            f1race_player_is_car_fly = false;
+            f1race_player_car.pos_x = (short) ((F1RACE_ROAD_1_START_X + F1RACE_ROAD_1_END_X - F1RACE_PLAYER_CAR_IMAGE_SIZE_X) / 2);
+            f1race_player_car.pos_y = F1RACE_DISPLAY_END_Y - F1RACE_PLAYER_CAR_IMAGE_SIZE_Y - 1;
+            f1race_is_crashing = false;
+            f1race_last_car_road = 0;
+            f1race_score = 0;
+            f1race_level = 1;
+            f1race_pass = 0;
+            f1race_fly_count = 1;
+            f1race_fly_charger_count = 0;	
+        
+            for (index = 0; index < F1RACE_OPPOSITE_CAR_COUNT; index++){
+                f1race_opposite_car[index].is_empty = true; /* clear all slot, no car */
+                f1race_opposite_car[index].is_add_score = false;
+            }
+            try{
+                mid.setSequence(new ASSETS().F1RACE_THEME);
+            }
+            catch(IOException | InvalidMidiDataException ex){
+                System.err.println(ex.toString());
+            }
+            mid.setLoopCount(mid.LOOP_CONTINUOUSLY);
+            mid.start();
+            t.start();  
+            
+            
         }
         
         public void keyPressed(KeyEvent e){
@@ -280,7 +320,7 @@ public class F1RaceSwing{
                    if (gover == true){
                        gover = false;
                        newGame();
-                       t.start();
+                       
                    }
                    break;
             }
@@ -310,6 +350,12 @@ public class F1RaceSwing{
         f.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         GameLogic gl = new GameLogic();
         f.addKeyListener(gl);
+        f.addWindowListener(new WindowAdapter(){
+            public void windowClosing(WindowEvent e){
+                System.exit(0);
+            }
+        });
+        f.setLocationRelativeTo(null);
         f.setResizable(false);
         f.setVisible(true);
         
@@ -560,42 +606,42 @@ public class F1RaceSwing{
         new Color(0,0,0));
         
 
-        x_pos = F1RACE_STATUS_START_X + 25;
+        x_pos = (short) ((F1RACE_STATUS_START_X + F1RACE_STATUS_END_X) / 2);
         y_pos = F1RACE_DISPLAY_START_Y + 74;
         
         if(f1race_level < 10)
             mtkgfw.gui_show_image(x_pos, y_pos, numbers[f1race_level]);
         
         if(f1race_level >= 10 && score < 100){
-            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[f1race_level / 10]);
-            mtkgfw.gui_show_image(x_pos, y_pos, numbers[f1race_level % 10]);
+            mtkgfw.gui_show_image(x_pos-3, y_pos, numbers[f1race_level / 10]);
+            mtkgfw.gui_show_image(x_pos+2, y_pos, numbers[f1race_level % 10]);
         }
         
-        if(f1race_level >= 100 && score < 1000){
-            int hund = f1race_level / 100;		// counter = 123 --> hunds = 1
-            int temp = f1race_level % 100;		// temp = 23
-
-            int tens = temp / 10;			// tens = 2
-            int ones = temp % 10;			// ones = 3
-            mtkgfw.gui_show_image(x_pos-12, y_pos, numbers[hund]);
-            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[tens]);
-            mtkgfw.gui_show_image(x_pos, y_pos, numbers[ones]);
-        }
-        
-        if(f1race_level >= 1000){
-            int thou = f1race_level / 1000;		// counter = 123 --> hunds = 1
-            int thoumod = f1race_level % 1000;		// temp = 23
-            
-            int hund = thoumod / 100;		// counter = 123 --> hunds = 1
-            int hundmod = thoumod % 100;		// temp = 23
-
-            int tens = hundmod / 10;			// tens = 2
-            int ones = hundmod % 10;			// ones = 3
-            mtkgfw.gui_show_image(x_pos-18, y_pos, numbers[thou]);
-            mtkgfw.gui_show_image(x_pos-12, y_pos, numbers[hund]);
-            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[tens]);
-            mtkgfw.gui_show_image(x_pos, y_pos, numbers[ones]);
-        }
+//        if(f1race_level >= 100 && score < 1000){
+//            int hund = f1race_level / 100;		// counter = 123 --> hunds = 1
+//            int temp = f1race_level % 100;		// temp = 23
+//
+//            int tens = temp / 10;			// tens = 2
+//            int ones = temp % 10;			// ones = 3
+//            mtkgfw.gui_show_image(x_pos-12, y_pos, numbers[hund]);
+//            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[tens]);
+//            mtkgfw.gui_show_image(x_pos, y_pos, numbers[ones]);
+//        }
+//        
+//        if(f1race_level >= 1000){
+//            int thou = f1race_level / 1000;		// counter = 123 --> hunds = 1
+//            int thoumod = f1race_level % 1000;		// temp = 23
+//            
+//            int hund = thoumod / 100;		// counter = 123 --> hunds = 1
+//            int hundmod = thoumod % 100;		// temp = 23
+//
+//            int tens = hundmod / 10;			// tens = 2
+//            int ones = hundmod % 10;			// ones = 3
+//            mtkgfw.gui_show_image(x_pos-18, y_pos, numbers[thou]);
+//            mtkgfw.gui_show_image(x_pos-12, y_pos, numbers[hund]);
+//            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[tens]);
+//            mtkgfw.gui_show_image(x_pos, y_pos, numbers[ones]);
+//        }
         
         x_pos = F1RACE_STATUS_START_X + 4;
         y_pos = F1RACE_DISPLAY_START_Y + 102;
@@ -612,7 +658,7 @@ public class F1RaceSwing{
         
         x_pos = F1RACE_STATUS_START_X + 25;
         y_pos = F1RACE_DISPLAY_START_Y + 96;
-        mtkgfw.gui_show_image(x_pos, y_pos, numbers[f1race_fly_charger_count]);
+        mtkgfw.gui_show_image(x_pos, y_pos, numbers[f1race_fly_count]);
     }
     
     public void F1Race_CollisionCheck(){
@@ -666,7 +712,7 @@ public class F1RaceSwing{
 
                 /* check right down corner */
                 if ((maxA_x >= minB_x) && (maxA_x <= maxB_x) && (maxA_y >= minB_y) && (maxA_y <= maxB_y)){	
-                    //F1Race_Render_Player_Car_Crash();
+                    F1Race_Render_Player_Car_Crash();
                     F1Race_Crashing();
                     return;
                 }
@@ -676,34 +722,10 @@ public class F1RaceSwing{
                     f1race_score++;
                     f1race_pass++;
                     f1race_opposite_car[index].is_add_score = true;
-                /* change level */
-                      if(f1race_pass % 10 == 0 && f1race_pass <= 100){
-                          f1race_level++;
-                      }
-//                    if (f1race_pass == 10){
-//                        f1race_level++; /* level 2 */
-//                    }
-//                    else if (f1race_pass == 20){
-//                        f1race_level++; /* level 3 */
-//                    }
-//                    else if (f1race_pass == 30){
-//                        f1race_level++; /* level 4 */
-//                    }
-//                    else if (f1race_pass == 40){
-//                        f1race_level++; /* level 5 */
-//                    }
-//                    else if (f1race_pass == 50){
-//                        f1race_level++; /* level 6 */
-//                    }
-//                    else if (f1race_pass == 60){
-//                        f1race_level++; /* level 7 */
-//                    }
-//                    else if (f1race_pass == 70){
-//                        f1race_level++; /* level 8 */
-//                    }
-//                    else if (f1race_pass == 100){
-//                        f1race_level++; /* level 9 */
-//                    }
+                    /* change level */
+                    if(f1race_pass % 10 == 0 && f1race_pass <= 100){
+                        f1race_level++;
+                    }           
 
                     f1race_fly_charger_count++;
                     if (f1race_fly_charger_count >= 6){
@@ -909,7 +931,16 @@ public class F1RaceSwing{
     }
     
     public void F1Race_Crashing(){
-        //play some audio??
+        //play sound
+        mid.stop();
+        try{
+                mid.setSequence(new ASSETS().CAR_CRASH);
+        }
+        catch(IOException | InvalidMidiDataException ex){
+                System.err.println(ex.toString());
+        }
+        mid.setLoopCount(0);
+        mid.start();
         f1race_is_crashing = true;
     }
     
@@ -948,12 +979,25 @@ public class F1RaceSwing{
         
         mtkgfw.gui_show_image((128 - text_image_width) / 2, text_image_offset_y, tx.TEXTURE_GAMEOVER);
         mtkgfw.gui_show_image((128 - box_image_width) / 2, box_image_offset_y, tx.TEXTURE_GAMEOVER_FIELD);
+        
+        
         mtkgfw.gui_show_image((128 - pic_image_width) / 2, pic_image_offset_y, tx.TEXTURE_GAMEOVER_CRASH);
+        
+        mtkgfw.gui_show_image(36, (148 - box_image_offset_y) /2, tx.TEXTURE_STATUS_SCORE);
+        mtkgfw.gui_show_image(65, (145 - box_image_offset_y) /2, tx.TEXTURE_STATUS_BOX);
     
-        g2d.setColor(new Color(0,0,0));
+        mid.stop();
+        try{
+                mid.setSequence(new ASSETS().GAMEOVER);
+        }
+        catch(IOException | InvalidMidiDataException ex){
+                System.err.println(ex.toString());
+        }
+        mid.setLoopCount(0);
+        mid.start();
         //mtkgfw.mmi_gfx_draw_gameover_screen(tx.TEXTURE_GAMEOVER, tx.TEXTURE_GAMEOVER_FIELD, tx.TEXTURE_GAMEOVER_CRASH, f1race_score);
         gover = true;
-	//play some sound here.
+        
     }
     
     public void F1Race_Render_Player_Car_Crash(){
@@ -988,6 +1032,21 @@ public class F1RaceSwing{
             f1race_opposite_car[index].is_empty = true; /* clear all slot, no car */
             f1race_opposite_car[index].is_add_score = false;
         }
+        t.start();
+        mid.stop();
+        mid.close();
+        try{
+                mid.setSequence(new ASSETS().F1RACE_THEME);
+                mid.open();
+                Thread.sleep(250);
+        }
+        catch(IOException | InvalidMidiDataException | MidiUnavailableException | InterruptedException ex){
+                System.err.println(ex.toString());
+        }
+        mid.setLoopCount(0);
+        
+        mid.start();
+        
     }
     
     public void F1Race_Framemove(){
@@ -1088,7 +1147,7 @@ public class F1RaceSwing{
         }
 
         F1Race_New_Opposite_Car();
-
+        
     }
     
     
