@@ -128,6 +128,6 @@ public class MTKGameFrameWork {
     
         g.setColor(new Color(0,0,0));
         g.setFont(new Font("Arial", Font.PLAIN, 16));
-        g.drawString(String.valueOf(score),(int) ((FrameWidth - box_image_width)*1.1), (int) (box_image_offset_y*1.45));
+        g.drawString(String.valueOf(score),(int) ((FrameWidth - box_image_width)), (int) (box_image_offset_y));
     }
 }
