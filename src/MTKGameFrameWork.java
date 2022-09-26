@@ -25,11 +25,11 @@ public class MTKGameFrameWork {
     }
     public int getRandomInt(int min, int max){
         Random rand = new Random();
-        return rand.nextInt(min, max);
+        return min+rand.nextInt(max);
     }
     
     public int rand(){
-        return this.getRandomInt(0, 32767);
+        return this.getRandomInt(0, 32768);
     }
     
     public String gui_color(int r, int g, int b){
