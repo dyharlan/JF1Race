@@ -131,7 +131,7 @@ public class F1RaceSwing{
     private short f1race_last_car_road;
     private boolean f1race_player_is_car_fly;
     private short f1race_player_car_fly_duration;
-    private short f1race_score = 99;
+    private short f1race_score;
     private short f1race_level;
     private short f1race_pass;
     private short f1race_fly_count;
@@ -186,7 +186,7 @@ public class F1RaceSwing{
     
     //swing vars
     
-    private ASSETS tx;
+    private TEXTURES tx;
     private JFrame f;
     private JPanel p;
     private Graphics2D g2d;
@@ -196,7 +196,7 @@ public class F1RaceSwing{
     private MTKGameFrameWork mtkgfw;
     public F1RaceSwing(){
         try {
-            tx = new ASSETS();
+            tx = new TEXTURES();
             init_assets();
             mid = MidiSystem.getSequencer();
             mid.open();
@@ -283,7 +283,7 @@ public class F1RaceSwing{
                 f1race_opposite_car[index].is_add_score = false;
             }
             try{
-                mid.setSequence(new ASSETS().F1RACE_THEME);
+                mid.setSequence(new SOUNDS().F1RACE_THEME);
             }
             catch(IOException | InvalidMidiDataException ex){
                 System.err.println(ex.toString());
@@ -298,18 +298,23 @@ public class F1RaceSwing{
         public void keyPressed(KeyEvent e){
             int keyCode = e.getKeyCode();
             switch(keyCode){
+                case KeyEvent.VK_UP:
                 case KeyEvent.VK_W:
                     f1race_key_up_pressed = true;
                     break;
+                case KeyEvent.VK_DOWN:
                 case KeyEvent.VK_S:
                     f1race_key_down_pressed = true;
                     break;
+                case KeyEvent.VK_LEFT:
                 case KeyEvent.VK_A:
                     f1race_key_left_pressed = true;
                     break;
+                case KeyEvent.VK_RIGHT:
                 case KeyEvent.VK_D:
                     f1race_key_right_pressed = true;
                     break;
+                case KeyEvent.VK_NUMPAD5:
                 case KeyEvent.VK_SPACE:
                     if (f1race_fly_count > 0 ){	
                         f1race_player_is_car_fly = true;
@@ -329,15 +334,19 @@ public class F1RaceSwing{
         public void keyReleased(KeyEvent e){
             int keyCode = e.getKeyCode();
             switch(keyCode){
+                case KeyEvent.VK_UP:
                 case KeyEvent.VK_W:
                     f1race_key_up_pressed = false;
                     break;
+                case KeyEvent.VK_DOWN:
                 case KeyEvent.VK_S:
                     f1race_key_down_pressed = false;
                     break;
+                case KeyEvent.VK_LEFT:
                 case KeyEvent.VK_A:
                     f1race_key_left_pressed = false;
                     break;
+                case KeyEvent.VK_RIGHT:
                 case KeyEvent.VK_D:
                     f1race_key_right_pressed = false;
                     break;
@@ -934,7 +943,7 @@ public class F1RaceSwing{
         //play sound
         mid.stop();
         try{
-                mid.setSequence(new ASSETS().CAR_CRASH);
+                mid.setSequence(new SOUNDS().CAR_CRASH);
         }
         catch(IOException | InvalidMidiDataException ex){
                 System.err.println(ex.toString());
@@ -959,6 +968,8 @@ public class F1RaceSwing{
         int str_width = 0;
         int str_height = 0;
         int spacing = 0;
+       
+        int score = f1race_score;
         g2d = (Graphics2D) p.getGraphics();
         
         mtkgfw.gui_fill_rectangle(0, 0, WINDOW_WIDTH,WINDOW_HEIGHT, new Color(234, 243, 255));
@@ -976,6 +987,8 @@ public class F1RaceSwing{
         box_image_offset_y = text_image_offset_y + text_image_height + spacing;
         pic_image_offset_y = box_image_offset_y + box_image_height + spacing;
         
+        int x_pos = F1RACE_STATUS_START_X - 3;
+        int y_pos = (149 - box_image_offset_y) / 2;
         
         mtkgfw.gui_show_image((128 - text_image_width) / 2, text_image_offset_y, tx.TEXTURE_GAMEOVER);
         mtkgfw.gui_show_image((128 - box_image_width) / 2, box_image_offset_y, tx.TEXTURE_GAMEOVER_FIELD);
@@ -985,10 +998,45 @@ public class F1RaceSwing{
         
         mtkgfw.gui_show_image(36, (148 - box_image_offset_y) /2, tx.TEXTURE_STATUS_SCORE);
         mtkgfw.gui_show_image(65, (145 - box_image_offset_y) /2, tx.TEXTURE_STATUS_BOX);
+        
+        if(score < 10)
+            mtkgfw.gui_show_image(x_pos, y_pos, numbers[score]);
+        
+        if(score >= 10 && score < 100){
+            
+            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[score / 10] );
+            mtkgfw.gui_show_image(x_pos, y_pos, numbers[score % 10]);
+        }
+        
+        if(score >= 100 && score < 1000){
+            int hund = score / 100;		// counter = 123 --> hunds = 1
+            int temp = score % 100;		// temp = 23
+
+            int tens = temp / 10;			// tens = 2
+            int ones = temp % 10;			// ones = 3
+            mtkgfw.gui_show_image(x_pos-12, y_pos, numbers[hund]);
+            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[tens]);
+            mtkgfw.gui_show_image(x_pos, y_pos, numbers[ones]);
+        }
+        
+        if(score >= 1000 && score <= 9999){
+            int thou = score / 1000;		// counter = 123 --> hunds = 1
+            int thoumod = score % 1000;		// temp = 23
+            
+            int hund = thoumod / 100;		// counter = 123 --> hunds = 1
+            int hundmod = thoumod % 100;		// temp = 23
+
+            int tens = hundmod / 10;			// tens = 2
+            int ones = hundmod % 10;			// ones = 3
+            mtkgfw.gui_show_image(x_pos-18, y_pos, numbers[thou]);
+            mtkgfw.gui_show_image(x_pos-12, y_pos, numbers[hund]);
+            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[tens]);
+            mtkgfw.gui_show_image(x_pos, y_pos, numbers[ones]);
+        }
     
         mid.stop();
         try{
-                mid.setSequence(new ASSETS().GAMEOVER);
+                mid.setSequence(new SOUNDS().GAMEOVER);
         }
         catch(IOException | InvalidMidiDataException ex){
                 System.err.println(ex.toString());
@@ -1032,21 +1080,20 @@ public class F1RaceSwing{
             f1race_opposite_car[index].is_empty = true; /* clear all slot, no car */
             f1race_opposite_car[index].is_add_score = false;
         }
-        t.start();
+        
         mid.stop();
         mid.close();
         try{
-                mid.setSequence(new ASSETS().F1RACE_THEME);
+                mid.setSequence(new SOUNDS().F1RACE_THEME);
                 mid.open();
                 Thread.sleep(250);
         }
         catch(IOException | InvalidMidiDataException | MidiUnavailableException | InterruptedException ex){
                 System.err.println(ex.toString());
         }
-        mid.setLoopCount(0);
-        
+        mid.setLoopCount(mid.LOOP_CONTINUOUSLY);
         mid.start();
-        
+        t.start();
     }
     
     public void F1Race_Framemove(){
