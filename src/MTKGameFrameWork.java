@@ -43,13 +43,6 @@ public class MTKGameFrameWork {
     
     public void gui_fill_rectangle(int x1, int y1, int x2, int y2, Color c) {
         g.setColor(c);
-//        int left = Math.min(x1, x2);
-//        int right = Math.max(x1, x2);
-//        int top = Math.min(y1, y2);
-//        int bottom = Math.max(y1, y2);
-//        int width = right - left;
-//        int height = bottom - top;
-        //g.fillRect(x1, y1, width, height);
         g.fillRect(x1,y1,x2-x1,y2-y1);
     }
     
@@ -73,13 +66,6 @@ public class MTKGameFrameWork {
     }
     
     public void gui_set_clip(int x1, int y1, int x2, int y2){
-//        int left = Math.min(x1, x2);
-//        int right = Math.max(x1, x2);
-//        int top = Math.min(y1, y2);
-//        int bottom = Math.max(y1, y2);
-//        int width = right - left;
-//        int height = bottom - top;
-//        g.setClip(x1, y1, width, height);
         g.setClip(x1,y1,x2-x1,y2-y1);
     }
     
