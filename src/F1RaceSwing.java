@@ -247,9 +247,8 @@ public class F1RaceSwing{
     }
     
     
-    //a keyhandler that uses Swing timers to remove animation delay
     /*
-    * From: https://stackoverflow.com/questions/12102619/java-keylistener-is-delayed-registration
+    * Game Loop and KeyHandler
     */
     private class GameLogic extends KeyAdapter {       
         
@@ -570,7 +569,7 @@ public class F1RaceSwing{
         
         if(score >= 10 && score < 100){
             
-            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[score / 10] );
+            mtkgfw.gui_show_image(x_pos-5, y_pos, numbers[score / 10] );
             mtkgfw.gui_show_image(x_pos, y_pos, numbers[score % 10]);
         }
         
@@ -580,8 +579,8 @@ public class F1RaceSwing{
 
             int tens = temp / 10;			// tens = 2
             int ones = temp % 10;			// ones = 3
-            mtkgfw.gui_show_image(x_pos-12, y_pos, numbers[hund]);
-            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[tens]);
+            mtkgfw.gui_show_image(x_pos-10, y_pos, numbers[hund]);
+            mtkgfw.gui_show_image(x_pos-5, y_pos, numbers[tens]);
             mtkgfw.gui_show_image(x_pos, y_pos, numbers[ones]);
         }
         
@@ -594,9 +593,9 @@ public class F1RaceSwing{
 
             int tens = hundmod / 10;			// tens = 2
             int ones = hundmod % 10;			// ones = 3
-            mtkgfw.gui_show_image(x_pos-18, y_pos, numbers[thou]);
-            mtkgfw.gui_show_image(x_pos-12, y_pos, numbers[hund]);
-            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[tens]);
+            mtkgfw.gui_show_image(x_pos-15, y_pos, numbers[thou]);
+            mtkgfw.gui_show_image(x_pos-10, y_pos, numbers[hund]);
+            mtkgfw.gui_show_image(x_pos-5, y_pos, numbers[tens]);
             mtkgfw.gui_show_image(x_pos, y_pos, numbers[ones]);
         }
         
@@ -1004,7 +1003,7 @@ public class F1RaceSwing{
         
         if(score >= 10 && score < 100){
             
-            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[score / 10] );
+            mtkgfw.gui_show_image(x_pos-5, y_pos, numbers[score / 10] );
             mtkgfw.gui_show_image(x_pos, y_pos, numbers[score % 10]);
         }
         
@@ -1014,8 +1013,8 @@ public class F1RaceSwing{
 
             int tens = temp / 10;			// tens = 2
             int ones = temp % 10;			// ones = 3
-            mtkgfw.gui_show_image(x_pos-12, y_pos, numbers[hund]);
-            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[tens]);
+            mtkgfw.gui_show_image(x_pos-10, y_pos, numbers[hund]);
+            mtkgfw.gui_show_image(x_pos-5, y_pos, numbers[tens]);
             mtkgfw.gui_show_image(x_pos, y_pos, numbers[ones]);
         }
         
@@ -1028,9 +1027,9 @@ public class F1RaceSwing{
 
             int tens = hundmod / 10;			// tens = 2
             int ones = hundmod % 10;			// ones = 3
-            mtkgfw.gui_show_image(x_pos-18, y_pos, numbers[thou]);
-            mtkgfw.gui_show_image(x_pos-12, y_pos, numbers[hund]);
-            mtkgfw.gui_show_image(x_pos-6, y_pos, numbers[tens]);
+            mtkgfw.gui_show_image(x_pos-15, y_pos, numbers[thou]);
+            mtkgfw.gui_show_image(x_pos-10, y_pos, numbers[hund]);
+            mtkgfw.gui_show_image(x_pos-5, y_pos, numbers[tens]);
             mtkgfw.gui_show_image(x_pos, y_pos, numbers[ones]);
         }
     
