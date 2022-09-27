@@ -269,14 +269,13 @@ public class F1RaceSwing{
             f1race_player_is_car_fly = false;
             f1race_player_car.pos_x = (short) ((F1RACE_ROAD_1_START_X + F1RACE_ROAD_1_END_X - F1RACE_PLAYER_CAR_IMAGE_SIZE_X) / 2);
             f1race_player_car.pos_y = F1RACE_DISPLAY_END_Y - F1RACE_PLAYER_CAR_IMAGE_SIZE_Y - 1;
-            f1race_is_crashing = false;
             f1race_last_car_road = 0;
             f1race_score = 0;
             f1race_level = 1;
             f1race_pass = 0;
             f1race_fly_count = 1;
             f1race_fly_charger_count = 0;	
-        
+            t.start();
             for (index = 0; index < F1RACE_OPPOSITE_CAR_COUNT; index++){
                 f1race_opposite_car[index].is_empty = true; /* clear all slot, no car */
                 f1race_opposite_car[index].is_add_score = false;
@@ -289,7 +288,7 @@ public class F1RaceSwing{
             }
             mid.setLoopCount(mid.LOOP_CONTINUOUSLY);
             mid.start();
-            t.start();  
+              
             
             
         }
@@ -360,6 +359,7 @@ public class F1RaceSwing{
         f.addKeyListener(gl);
         f.addWindowListener(new WindowAdapter(){
             public void windowClosing(WindowEvent e){
+                mid.close();
                 System.exit(0);
             }
         });
@@ -939,8 +939,7 @@ public class F1RaceSwing{
     }
     
     public void F1Race_Crashing(){
-        //play sound
-        mid.stop();
+       mid.stop();
         try{
                 mid.setSequence(new SOUNDS().CAR_CRASH);
         }
@@ -1067,7 +1066,6 @@ public class F1RaceSwing{
         f1race_player_is_car_fly = false;
         f1race_player_car.pos_x = (short) ((F1RACE_ROAD_1_START_X + F1RACE_ROAD_1_END_X - F1RACE_PLAYER_CAR_IMAGE_SIZE_X) / 2);
         f1race_player_car.pos_y = F1RACE_DISPLAY_END_Y - F1RACE_PLAYER_CAR_IMAGE_SIZE_Y - 1;
-        f1race_is_crashing = false;
         f1race_last_car_road = 0;
         f1race_score = 0;
         f1race_level = 1;

@@ -26,6 +26,6 @@ public class SOUNDS {
 
         F1RACE_THEME = new BufferedInputStream((getClass().getResourceAsStream("assets/F1RACE_THEME.mid")));
         GAMEOVER = new BufferedInputStream((getClass().getResourceAsStream("assets/GAME_OVER.mid")));
-        CAR_CRASH = new BufferedInputStream((getClass().getResourceAsStream("assets/CAR_CRASH.MID")));
+        CAR_CRASH = new BufferedInputStream((getClass().getResourceAsStream("assets/CAR_CRASH.mid")));
     }
 }
