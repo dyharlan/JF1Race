@@ -19,8 +19,13 @@ public class SOUNDS {
     public final InputStream GAMEOVER;
     public final InputStream CAR_CRASH;
     public SOUNDS() throws FileNotFoundException{
-        F1RACE_THEME = new BufferedInputStream(new FileInputStream(new File("assets/F1RACE_THEME.mid")));
-        GAMEOVER = new BufferedInputStream(new FileInputStream(new File("assets/GAME_OVER.mid")));
-        CAR_CRASH = new BufferedInputStream(new FileInputStream(new File("assets/CAR_CRASH.MID")));
+        //for debugging
+//        F1RACE_THEME = new BufferedInputStream(new FileInputStream(new File("assets/F1RACE_THEME.mid")));
+//        GAMEOVER = new BufferedInputStream(new FileInputStream(new File("assets/GAME_OVER.mid")));
+//        CAR_CRASH = new BufferedInputStream(new FileInputStream(new File("assets/CAR_CRASH.MID")));
+
+        F1RACE_THEME = new BufferedInputStream((getClass().getResourceAsStream("assets/F1RACE_THEME.mid")));
+        GAMEOVER = new BufferedInputStream((getClass().getResourceAsStream("assets/GAME_OVER.mid")));
+        CAR_CRASH = new BufferedInputStream((getClass().getResourceAsStream("assets/CAR_CRASH.MID")));
     }
 }
