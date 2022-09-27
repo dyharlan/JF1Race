@@ -3,7 +3,8 @@ nbproject/private/config.properties
 nbproject/private/private.properties
 nbproject/private/private.xml
 *.class
-
+/dist/*
+/unused/*
 /build/
 assets/unused/GAME_F1RACE_OPPOSITE_CAR_0.bmp
 assets/unused/GAME_F1RACE_OPPOSITE_CAR_1.bmp
