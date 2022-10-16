@@ -33,6 +33,7 @@ public class TEXTURES{
     public final BufferedImage TEXTURE_GAMEOVER;
     public final BufferedImage TEXTURE_GAMEOVER_CRASH;
     public final BufferedImage TEXTURE_GAMEOVER_FIELD;
+    public final BufferedImage TEXTURE_GAMEOVER_FIELD_BLUE;
     
 
     public TEXTURES() throws IOException{
@@ -67,6 +68,7 @@ public class TEXTURES{
              TEXTURE_GAMEOVER = ImageIO.read(getClass().getResourceAsStream("/assets/GAME_F1RACE_GAMEOVER.bmp"));
              TEXTURE_GAMEOVER_CRASH = ImageIO.read(getClass().getResourceAsStream("assets/GAME_F1RACE_GAMEOVER_CRASH.bmp"));
              TEXTURE_GAMEOVER_FIELD = ImageIO.read(getClass().getResourceAsStream("assets/GAME_F1RACE_GAMEOVER_FIELD.bmp"));
+             TEXTURE_GAMEOVER_FIELD_BLUE = ImageIO.read(getClass().getResourceAsStream("assets/GAME_F1RACE_GAMEOVER_FIELD_BLUE.bmp"));
              
         }
 }

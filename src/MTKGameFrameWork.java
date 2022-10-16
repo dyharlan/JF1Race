@@ -108,14 +108,14 @@ public class MTKGameFrameWork {
         box_image_offset_y = text_image_offset_y + text_image_height + spacing;
         pic_image_offset_y = box_image_offset_y + box_image_height + spacing;
 
-        gui_show_image((FrameWidth - text_image_width) >> 1, text_image_offset_y, text_img_id);
-        gui_show_image((FrameWidth - box_image_width) >> 1, box_image_offset_y, box_img_id);
-        gui_show_image((FrameWidth - pic_image_width) >> 1, pic_image_offset_y, pic_img_id);
+        gui_show_image((128 - text_image_width) >> 1, text_image_offset_y, text_img_id);
+        gui_show_image((128 - box_image_width) >> 1, box_image_offset_y, box_img_id);
+        gui_show_image((128 - pic_image_width) >> 1, pic_image_offset_y, pic_img_id);
     
         g.setColor(new Color(0,0,0));
         g.setFont(new Font("Arial", Font.PLAIN, 16));
         
-        g.drawString(String.valueOf(score),(int) ((FrameWidth - box_image_width)), (int) (FrameWidth - box_image_offset_y)/2);
+        g.drawString(String.valueOf(score),(int) ((130 - box_image_width)), (int) (165 - box_image_offset_y)/2);
     }
     
     
