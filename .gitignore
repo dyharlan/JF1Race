@@ -5,6 +5,6 @@ nbproject/private/private.xml
 *.class
 /dist/*
 /unused/*
-assets/unused/*
+src/assets/unused/*
 /build/
 
