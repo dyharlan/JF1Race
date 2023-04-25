@@ -1108,7 +1108,11 @@ public class F1RaceSwing{
         }
         mid.setLoopCount(mid.LOOP_CONTINUOUSLY);
         mid.start();
-        t.start();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+               t.start();
+            }
+        });
     }
     
     public void F1Race_Framemove(){
